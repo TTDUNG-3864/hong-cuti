@@ -168,10 +168,6 @@ img.custom-floating-image {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Thêm viền mờ */
 }
 
-
-/* === KHỐI @media (max-width: 600px) ĐÃ BỊ XÓA HOÀN TOÀN === */
-
-
 /* SỬA LỖI LOGIC MÀU TIM BAY (DÙNG SEPIA) */
 @keyframes rainbow-hue {
   0%   { filter: sepia(100%) saturate(1000%) brightness(0.8) hue-rotate(0deg); }
@@ -202,8 +198,6 @@ body.floating-color-rainbow img.floating-heart {
   white-space: normal; /* Cho phép xuống dòng (như bạn muốn) */
   overflow: hidden;
   border-bottom: 2px solid transparent; /* Dấu nháy (ban đầu trong suốt) */
-  
-  /* CÁC THUỘC TÍNH BỊ XÓA: opacity: 0, width: 0 */
 }
 
 /* Keyframe cho dấu nháy (GIỮ NGUYÊN) */
@@ -248,29 +242,22 @@ body.floating-color-rainbow img.floating-heart {
     right: var(--heart-width-offset, 5vw); /* Áp dụng X-offset từ JS */
   }
 
-  /* === KẾT THÚC ĐOẠN THÊM === */
   .love-text-content.start-typing {
     opacity: 1;
-    /* CHỈ CÒN LẠI ANIMATION DẤU NHÁY */
     animation: blink-caret .75s step-end infinite;
-    
-    /* XÓA BỎ: animation 'typing' và 'steps()' */
   }
 
-  /* Class để ẩn đi (JS sẽ thêm) */
   .love-text-content.hide-text {
     opacity: 0;
     transition: opacity 1s ease-out;
-    /* XÓA BỎ: width 0, animation none, v.v... */
   }
   body.border-rainbow::before {
   animation: rainbow-border 4s linear infinite;
   }
 
-/* === CSS MỚI CHO DI ĐỘNG XOAY NGANG (LANDSCAPE) === */
-/* (Đây là code thay thế cho khối @media cũ) */
+/* === CSS MỚI CHO DI ĐỘNG (THAY THẾ @media) - SỬA LỖI XOAY v4 === */
 
-/* Áp dụng chung cho di động (giống @media (max-width: 600px) cũ) */
+/* 1. ÁP DỤNG CHUNG CHO DI ĐỘNG (DỌC VÀ NGANG) */
 body.mobile-layout h1 {
   font-size: max(2.5rem, 1.5vh);
   top: 6vh;
@@ -280,11 +267,12 @@ body.mobile-layout #startButton {
   padding: 12px 25px;
   font-size: 1rem;
 }
+
+/* Các cài đặt chung cho bảng điều khiển trên di động */
 body.mobile-layout #controls-container {
   top: 10px;
   left: 10px;
-  right: 10px;
-  max-width: none;
+  /* XÓA: right: 10px, max-width: none */
 }
 body.mobile-layout #toggle-controls, 
 body.mobile-layout #toggle-fullscreen {
@@ -305,30 +293,40 @@ body.mobile-layout .control-group input[type="range"] {
     border-radius: 5px;
     outline: none;
 }
+/* Các cài đặt chung cho hộp text trên di động */
 body.mobile-layout .love-text-container {
   width: 42vw;
   min-width: 140px;
   font-size: 1.2rem;
   padding: 10px;
 }
-body.mobile-layout #love-text-left { left: 3vw; }
-body.mobile-layout #love-text-right { right: 3vw; }
 
-/* === CHỈ ÁP DỤNG KHI XOAY NGANG === */
+/* 2. === CÀI ĐẶT RIÊNG CHO CHẾ ĐỘ DỌC (PORTRAIT) === */
+/* (Chỉ chạy khi body có class 'portrait-layout') */
+
+body.portrait-layout #controls-container {
+  right: 10px;
+  max-width: none; /* Trải dài 100% (trừ lề left/right 10px) */
+}
+body.portrait-layout #love-text-left { left: 3vw; }
+body.portrait-layout #love-text-right { right: 3vw; }
+
+
+/* 3. === CÀI ĐẶT RIÊNG CHO CHẾ ĐỘ NGANG (LANDSCAPE) === */
+/* (Chỉ chạy khi body có class 'landscape-layout') */
+
 body.landscape-layout #controls-container {
-  /* Thu hẹp bảng lệnh và đẩy sang trái */
-  max-width: 240px; 
+  max-width: 240px; /* Cố định 240px */
   right: auto;
 }
 body.landscape-layout #controls {
-  /* Giảm đệm cho vừa */
   padding: 5px;
 }
 body.landscape-layout .control-group {
-  margin: 5px 0; /* Giảm khoảng cách */
+  margin: 5px 0;
 }
 body.landscape-layout .control-group label { 
-  width: 70px; /* Chữ nhỏ hơn */
+  width: 70px; 
   font-size: 10px; 
   margin-right: 5px;
 }
@@ -340,7 +338,6 @@ body.landscape-layout .control-group select {
   font-size: 10px; 
   padding: 3px;
 }
-/* Đẩy chữ ra sau bảng lệnh */
 body.landscape-layout #love-text-left { 
   left: 250px; /* 240px (bảng) + 10px (đệm) */
   top: 45%;
@@ -350,7 +347,6 @@ body.landscape-layout #love-text-right {
   top: 45%;
 }
 body.landscape-layout .love-text-container {
-  /* Thu nhỏ chữ 1 chút */
   font-size: 1.1rem;
   width: 30vw;
 }
