@@ -108,52 +108,79 @@ class World {
   }
 
   // === HÀM MỚI DÀNH RIÊNG CHO VIỆC TÍNH TOÁN KÍCH THƯỚC ===
+  // === HÀM MỚI DÀNH RIÊNG CHO VIỆC TÍNH TOÁN KÍCH THƯỚC (Bản sửa lỗi v5 - Dùng JS ép Style) ===
   updateLayoutBasedOnScreen() {
     // 1. Lấy kích thước MỚI NHẤT
     const width = document.documentElement.clientWidth;
     const height = document.documentElement.clientHeight;
 
-    // 2. Xác định trạng thái (Mobile Dọc, Mobile Ngang, hay Desktop)
+    // 2. Xác định trạng thái
     const isMobilePortrait = width < 600 && height > width;
-    const isMobileLandscape = height < 500 && width > height; // Màn hình lùn (ngang)
+    const isMobileLandscape = height < 500 && width > height;
     const isMobile = isMobilePortrait || isMobileLandscape;
 
     let newHeartZoom;
     let newParticleSize;
-    let bodyClassList = []; // Dùng mảng để chứa class
+
+    // === PHẦN SỬA LỖI QUAN TRỌNG ===
+    // 3. Lấy đối tượng Bảng điều khiển
+    const controlsContainer = document.getElementById('controls-container');
+    if (!controlsContainer) return; // Dừng nếu không tìm thấy
+
+    // 4. Xóa class layout cũ
+    document.body.classList.remove(
+      'desktop-layout', 
+      'mobile-layout', 
+      'portrait-layout', 
+      'landscape-layout'
+    );
 
     if (isMobilePortrait) {
       // --- Cấu hình Di Động DỌC ---
-      newHeartZoom = 0.065;    // Tim 3D (vừa)
-      newParticleSize = 0.15;   // Tim chính (vừa)
-      bodyClassList.push('mobile-layout', 'portrait-layout');
+      newHeartZoom = 0.065;
+      newParticleSize = 0.15;
+      document.body.classList.add('mobile-layout', 'portrait-layout');
+      
+      // Ép style cho chế độ DỌC
+      controlsContainer.style.maxWidth = 'none';
+      controlsContainer.style.right = '10px';
+      controlsContainer.style.left = '10px';
       
     } else if (isMobileLandscape) {
       // --- Cấu hình Di Động NGANG ---
-      newHeartZoom = 0.050;    // Tim 3D (nhỏ)
-      newParticleSize = 0.12;   // Tim chính (nhỏ)
-      bodyClassList.push('mobile-layout', 'landscape-layout');
+      newHeartZoom = 0.050;
+      newParticleSize = 0.12;
+      document.body.classList.add('mobile-layout', 'landscape-layout');
+
+      // Ép style cho chế độ NGANG
+      controlsContainer.style.maxWidth = '240px';
+      controlsContainer.style.right = 'auto';
+      controlsContainer.style.left = '10px';
 
     } else {
       // --- Cấu hình Desktop ---
-      newHeartZoom = 0.08;     // Tim 3D (mặc định)
-      newParticleSize = 0.2;    // Tim chính (mặc định)
-      bodyClassList.push('desktop-layout');
+      newHeartZoom = 0.08;
+      newParticleSize = 0.2;
+      document.body.classList.add('desktop-layout');
+      
+      // Ép style về mặc định cho Desktop
+      controlsContainer.style.maxWidth = '300px';
+      controlsContainer.style.right = 'auto';
+      controlsContainer.style.left = '20px';
     }
+    // === KẾT THÚC PHẦN SỬA LỖI ===
 
-    // 3. Cập nhật config
+    // 5. Cập nhật config (Giữ nguyên)
     this.config.heartZoom = newHeartZoom;
     this.config.particleSize = newParticleSize;
     
-    // 4. Cập nhật "live" các giá trị Three.js
+    // 6. Cập nhật "live" các giá trị Three.js (Giữ nguyên)
     if (this.heartMaterial) {
-      // Cập nhật tim 3D
       this.heartMaterial.uniforms.uHeartRadius.value = newHeartZoom;
-      // Cập nhật tim chính
       this.heartMaterial.uniforms.uSize.value = newParticleSize;
     }
 
-    // 5. Cập nhật thanh trượt (slider) cho đồng bộ
+    // 7. Cập nhật thanh trượt (slider) cho đồng bộ (Giữ nguyên)
     const zoomSlider = document.getElementById('heartZoom');
     const zoomValue = document.getElementById('heartZoomValue');
     if (zoomSlider) zoomSlider.value = newHeartZoom;
@@ -163,16 +190,8 @@ class World {
     const sizeValue = document.getElementById('particleSizeValue');
     if (sizeSlider) sizeSlider.value = newParticleSize;
     if (sizeValue) sizeValue.textContent = newParticleSize.toFixed(2);
-
-    // 6. Cập nhật class CSS trên <body> (quan trọng cho bảng lệnh)
-    // Lấy các class màu viền/tim bay cũ
-    const floatingColorClass = document.body.className.match(/floating-color-\S+/g) || [];
-    const borderColorClass = document.body.className.match(/border-rainbow/g) || [];
-    
-    // Set class mới, giữ lại class màu cũ
-    document.body.className = [...bodyClassList, ...floatingColorClass, ...borderColorClass].join(' ');
   }
-  // === KẾT THÚC HÀM MỚI ===
+  // === KẾT THÚC HÀM THAY THẾ ===
 
   // === HÀM MỚI ĐỂ GÕ CHỮ (JAVASCRIPT) ===
   typewriter(element, text, duration, onComplete = null) {
