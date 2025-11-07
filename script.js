@@ -330,15 +330,40 @@ class World {
     requestAnimationFrame(this.loop.bind(this));
   }
 
+  // === ĐÂY LÀ HÀM "MỚI" ĐỂ TỰ ĐỘNG ĐIỀU CHỈNH KHI XOAY ===
+  // === TOÀN BỘ HÀM CŨ (DÒNG 299-308) ĐƯỢC THAY BẰNG HÀM NÀY ===
   listenToResize() {
-    window.addEventListener("resize", () => {
+    // Gắn hàm này vào sự kiện resize (xoay, đổi kích thước)
+    window.addEventListener('resize', () => {
+      // 1. Lấy kích thước mới (chuẩn nhất, không bị vạch trắng)
       this.width = document.documentElement.clientWidth;
       this.height = document.documentElement.clientHeight;
+
+      // 2. Cập nhật Renderer (để canvas vừa khít)
+      this.renderer.setSize(this.width, this.height);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // 3. Cập nhật Camera (CỰC KỲ QUAN TRỌNG, để không bị méo hình)
       this.camera.aspect = this.width / this.height;
       this.camera.updateProjectionMatrix();
-      this.renderer.setSize(this.width, this.height);
+
+      // 4. [LOGIC MỚI] Tự động điều chỉnh tim 3D khi xoay
+      const isMobile = this.width < 768; // 768px là mốc chuẩn cho tablet
+      const newHeartZoom = isMobile ? 0.065 : 0.08;
+      
+      this.config.heartZoom = newHeartZoom;
+      if (this.heartMaterial) {
+        this.heartMaterial.uniforms.uHeartRadius.value = newHeartZoom;
+      }
+
+      // 5. [LOGIC MỚI] Cập nhật lại thanh slider (để đồng bộ)
+      const zoomSlider = document.getElementById('heartZoom');
+      const zoomValue = document.getElementById('heartZoomValue');
+      if(zoomSlider) zoomSlider.value = newHeartZoom;
+      if(zoomValue) zoomValue.textContent = newHeartZoom.toFixed(3);
     });
   }
+  // === KẾT THÚC THAY THẾ ===
 
   listenToMouseMove() {
     window.addEventListener("mousemove", e => {
