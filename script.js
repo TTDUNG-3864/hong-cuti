@@ -19,23 +19,35 @@ class World {
       a: 2, c: 4.5
     };
 
-    const isMobile = window.innerWidth <= 600;
+    // === BẮT ĐẦU THAY THẾ (Dòng 21) ===
+    
+    // 1. Tính toán tạm thời để set config ban đầu
+    const initialWidth = window.innerWidth;
+    const initialHeight = window.innerHeight;
+    const isMobilePortrait = initialWidth < 600 && initialHeight > initialWidth;
+    const isMobileLandscape = initialHeight < 500 && initialWidth > initialHeight;
+    const isMobile = isMobilePortrait || isMobileLandscape;
+    
+    // 2. Đặt particleCount (số tim) chuẩn ngay từ đầu
+    // (Ít tim hơn khi xoay ngang vì lag)
+    const initialParticleCount = isMobile ? (isMobileLandscape ? 1000 : 1500) : 3000;
 
     this.config = {
-      // Tự động giảm 50% số hạt nếu là di động (Fix lag)
-      particleCount: isMobile ? 1500 : 3000, 
+      // Tự động giảm hạt nếu là di động (Fix lag)
+      particleCount: initialParticleCount, 
       
-      // Hạt nhỏ hơn 1 chút trên di động
-      particleSize: isMobile ? 0.15 : 0.2, 
+      // Kích thước/Zoom sẽ được hàm mới đặt, đây là mặc định
+      particleSize: 0.2, 
       
       speed: 0.0005,
       colorScheme: 'tim1_original',
       
-      // QUAN TRỌNG: Tự động thu nhỏ trái tim trên di động (Fix lỗi "quá to")
-      heartZoom: isMobile ? 0.065 : 0.08, 
+      // Kích thước/Zoom sẽ được hàm mới đặt, đây là mặc định
+      heartZoom: 0.08, 
       
       floatingHeartColor: 'original',
     };
+    // === KẾT THÚC THAY THẾ (Dòng 34) ===
 
     // Biến để điều khiển interval
     this.customImageSpawner = null;
@@ -88,10 +100,80 @@ class World {
     this.setupFloatingImages(); // Khôi phục tim bay PNG
     this.setupCustomFloatingImages(); // Thêm ảnh tùy chỉnh
 
+    this.updateLayoutBasedOnScreen(); // <-- THÊM DÒNG NÀY ĐỂ CHẠY LẦN ĐẦU
+
     this.render();
     this.listenToResize();
     this.listenToMouseMove();
   }
+
+  // === HÀM MỚI DÀNH RIÊNG CHO VIỆC TÍNH TOÁN KÍCH THƯỚC ===
+  updateLayoutBasedOnScreen() {
+    // 1. Lấy kích thước MỚI NHẤT
+    const width = document.documentElement.clientWidth;
+    const height = document.documentElement.clientHeight;
+
+    // 2. Xác định trạng thái (Mobile Dọc, Mobile Ngang, hay Desktop)
+    const isMobilePortrait = width < 600 && height > width;
+    const isMobileLandscape = height < 500 && width > height; // Màn hình lùn (ngang)
+    const isMobile = isMobilePortrait || isMobileLandscape;
+
+    let newHeartZoom;
+    let newParticleSize;
+    let bodyClassList = []; // Dùng mảng để chứa class
+
+    if (isMobilePortrait) {
+      // --- Cấu hình Di Động DỌC ---
+      newHeartZoom = 0.065;    // Tim 3D (vừa)
+      newParticleSize = 0.15;   // Tim chính (vừa)
+      bodyClassList.push('mobile-layout', 'portrait-layout');
+      
+    } else if (isMobileLandscape) {
+      // --- Cấu hình Di Động NGANG ---
+      newHeartZoom = 0.050;    // Tim 3D (nhỏ)
+      newParticleSize = 0.12;   // Tim chính (nhỏ)
+      bodyClassList.push('mobile-layout', 'landscape-layout');
+
+    } else {
+      // --- Cấu hình Desktop ---
+      newHeartZoom = 0.08;     // Tim 3D (mặc định)
+      newParticleSize = 0.2;    // Tim chính (mặc định)
+      bodyClassList.push('desktop-layout');
+    }
+
+    // 3. Cập nhật config
+    this.config.heartZoom = newHeartZoom;
+    this.config.particleSize = newParticleSize;
+    
+    // 4. Cập nhật "live" các giá trị Three.js
+    if (this.heartMaterial) {
+      // Cập nhật tim 3D
+      this.heartMaterial.uniforms.uHeartRadius.value = newHeartZoom;
+      // Cập nhật tim chính
+      this.heartMaterial.uniforms.uSize.value = newParticleSize;
+    }
+
+    // 5. Cập nhật thanh trượt (slider) cho đồng bộ
+    const zoomSlider = document.getElementById('heartZoom');
+    const zoomValue = document.getElementById('heartZoomValue');
+    if (zoomSlider) zoomSlider.value = newHeartZoom;
+    if (zoomValue) zoomValue.textContent = newHeartZoom.toFixed(3);
+    
+    const sizeSlider = document.getElementById('particleSize');
+    const sizeValue = document.getElementById('particleSizeValue');
+    if (sizeSlider) sizeSlider.value = newParticleSize;
+    if (sizeValue) sizeValue.textContent = newParticleSize.toFixed(2);
+
+    // 6. Cập nhật class CSS trên <body> (quan trọng cho bảng lệnh)
+    // Lấy các class màu viền/tim bay cũ
+    const floatingColorClass = document.body.className.match(/floating-color-\S+/g) || [];
+    const borderColorClass = document.body.className.match(/border-rainbow/g) || [];
+    
+    // Set class mới, giữ lại class màu cũ
+    document.body.className = [...bodyClassList, ...floatingColorClass, ...borderColorClass].join(' ');
+  }
+  // === KẾT THÚC HÀM MỚI ===
+
   // === HÀM MỚI ĐỂ GÕ CHỮ (JAVASCRIPT) ===
   typewriter(element, text, duration, onComplete = null) {
     // Lấy text, chuẩn bị
@@ -298,8 +380,9 @@ class World {
     if (this.heartMaterial) {
       this.heartMaterial.uniforms.uTime.value +=
         this.time.delta * this.config.speed * (1 + this.data * 0.2); 
-      this.heartMaterial.uniforms.uSize.value = this.config.particleSize;
-      this.heartMaterial.uniforms.uHeartRadius.value = this.config.heartZoom;
+      // Kích thước và Zoom đã được updateLayoutBasedOnScreen() xử lý
+      // this.heartMaterial.uniforms.uSize.value = this.config.particleSize;
+      // this.heartMaterial.uniforms.uHeartRadius.value = this.config.heartZoom;
     }
     
     if (this.model) {
@@ -330,40 +413,22 @@ class World {
     requestAnimationFrame(this.loop.bind(this));
   }
 
-  // === ĐÂY LÀ HÀM "MỚI" ĐỂ TỰ ĐỘNG ĐIỀU CHỈNH KHI XOAY ===
-  // === TOÀN BỘ HÀM CŨ (DÒNG 299-308) ĐƯỢC THAY BẰNG HÀM NÀY ===
+  // === BẮT ĐẦU THAY THẾ (Dòng 318) ===
   listenToResize() {
-    // Gắn hàm này vào sự kiện resize (xoay, đổi kích thước)
     window.addEventListener('resize', () => {
-      // 1. Lấy kích thước mới (chuẩn nhất, không bị vạch trắng)
+      // 1. Cập nhật kích thước cơ bản cho Three.js
       this.width = document.documentElement.clientWidth;
       this.height = document.documentElement.clientHeight;
-
-      // 2. Cập nhật Renderer (để canvas vừa khít)
       this.renderer.setSize(this.width, this.height);
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      // 3. Cập nhật Camera (CỰC KỲ QUAN TRỌNG, để không bị méo hình)
       this.camera.aspect = this.width / this.height;
       this.camera.updateProjectionMatrix();
 
-      // 4. [LOGIC MỚI] Tự động điều chỉnh tim 3D khi xoay
-      const isMobile = this.width < 768; // 768px là mốc chuẩn cho tablet
-      const newHeartZoom = isMobile ? 0.065 : 0.08;
-      
-      this.config.heartZoom = newHeartZoom;
-      if (this.heartMaterial) {
-        this.heartMaterial.uniforms.uHeartRadius.value = newHeartZoom;
-      }
-
-      // 5. [LOGIC MỚI] Cập nhật lại thanh slider (để đồng bộ)
-      const zoomSlider = document.getElementById('heartZoom');
-      const zoomValue = document.getElementById('heartZoomValue');
-      if(zoomSlider) zoomSlider.value = newHeartZoom;
-      if(zoomValue) zoomValue.textContent = newHeartZoom.toFixed(3);
+      // 2. Gọi hàm tính toán layout tổng
+      // Hàm này sẽ tự xử lý (tim 3D, tim chính, bảng lệnh)
+      this.updateLayoutBasedOnScreen();
     });
   }
-  // === KẾT THÚC THAY THẾ ===
+  // === KẾT THÚC THAY THẾ (Dòng 348) ===
 
   listenToMouseMove() {
     window.addEventListener("mousemove", e => {
@@ -674,9 +739,11 @@ class World {
     
     const floatingColorClasses = ['original', 'red', 'green', 'blue', 'monochrome', 'rainbow'];
     const updateFloatingHeartColor = (newColor) => {
+        // Xóa class màu cũ
         floatingColorClasses.forEach(color => {
             document.body.classList.remove(`floating-color-${color}`);
         });
+        // Thêm class màu mới
         document.body.classList.add(`floating-color-${newColor}`);
     };
     

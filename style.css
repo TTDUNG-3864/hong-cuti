@@ -323,3 +323,82 @@ body.floating-color-rainbow img.floating-heart {
   body.border-rainbow::before {
   animation: rainbow-border 4s linear infinite;
   }
+
+/* === CSS MỚI CHO DI ĐỘNG XOAY NGANG (LANDSCAPE) === */
+
+/* Áp dụng chung cho di động (giống @media (max-width: 600px) cũ) */
+body.mobile-layout h1 {
+  font-size: max(2.5rem, 1.5vh);
+  top: 6vh;
+}
+body.mobile-layout #startButton {
+  bottom: 12vh;
+  padding: 12px 25px;
+  font-size: 1rem;
+}
+body.mobile-layout #controls-container {
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  max-width: none;
+}
+body.mobile-layout #toggle-controls, 
+body.mobile-layout #toggle-fullscreen {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+body.mobile-layout #toggle-fullscreen { top: 10px; right: 10px; }
+body.mobile-layout #controls { padding: 10px; }
+body.mobile-layout .control-group { margin: 8px 0; }
+body.mobile-layout .control-group label { width: 80px; font-size: 12px; }
+body.mobile-layout .control-group span { width: 40px; font-size: 12px; }
+body.mobile-layout .control-group select { font-size: 12px; padding: 4px; }
+body.mobile-layout .love-text-container {
+  width: 42vw;
+  min-width: 140px;
+  font-size: 1.2rem;
+  padding: 10px;
+}
+body.mobile-layout #love-text-left { left: 3vw; }
+body.mobile-layout #love-text-right { right: 3vw; }
+
+/* === CHỈ ÁP DỤNG KHI XOAY NGANG === */
+body.landscape-layout #controls-container {
+  /* Thu hẹp bảng lệnh và đẩy sang trái */
+  max-width: 240px; 
+  right: auto;
+}
+body.landscape-layout #controls {
+  /* Giảm đệm cho vừa */
+  padding: 5px;
+}
+body.landscape-layout .control-group {
+  margin: 5px 0; /* Giảm khoảng cách */
+}
+body.landscape-layout .control-group label { 
+  width: 70px; /* Chữ nhỏ hơn */
+  font-size: 10px; 
+  margin-right: 5px;
+}
+body.landscape-layout .control-group span { 
+  width: 35px; 
+  font-size: 10px;
+}
+body.landscape-layout .control-group select { 
+  font-size: 10px; 
+  padding: 3px;
+}
+/* Đẩy chữ ra sau bảng lệnh */
+body.landscape-layout #love-text-left { 
+  left: 250px; /* 240px (bảng) + 10px (đệm) */
+  top: 45%;
+} 
+body.landscape-layout #love-text-right {
+  right: 3vw;
+  top: 45%;
+}
+body.landscape-layout .love-text-container {
+  /* Thu nhỏ chữ 1 chút */
+  font-size: 1.1rem;
+  width: 30vw;
+}
