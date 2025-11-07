@@ -58,8 +58,8 @@ class World {
     this.data = 0;
     this.time = { current: 0, t0: 0, t1: 0, t: 0, frequency: this.config.speed };
     this.angle = { x: 0, z: 0 };
-    this.width = width || window.innerWidth;
-    this.height = height || window.innerHeight;
+    this.width = width || document.documentElement.clientWidth;
+    this.height = height || document.documentElement.clientHeight;
     this.aspectRatio = this.width / this.height;
     this.fieldOfView = fieldOfView;
     this.camera = new THREE.PerspectiveCamera(
@@ -332,8 +332,8 @@ class World {
 
   listenToResize() {
     window.addEventListener("resize", () => {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
+      this.width = document.documentElement.clientWidth;
+      this.height = document.documentElement.clientHeight;
       this.camera.aspect = this.width / this.height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(this.width, this.height);
