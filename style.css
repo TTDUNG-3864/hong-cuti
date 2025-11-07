@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Parisienne&display.swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display.swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
@@ -26,6 +26,13 @@ body::before {
   box-shadow: 0 0 20px var(--border-shadow, rgba(255, 153, 204, 0.5)); 
   animation: none;
 }
+/* === SỬA BODY::BEFORE CHO DI ĐỘNG === */
+body.mobile-layout::before {
+    inset: 0.5rem; /* Giảm khoảng cách */
+    border-width: 4px; /* Viền mỏng hơn */
+    border-radius: 10px; /* Bo góc ít hơn */
+}
+
 h1 {
   position: absolute;
   top: 8vh;
@@ -162,72 +169,8 @@ img.custom-floating-image {
 }
 
 
-@media (max-width: 600px) {
-  body::before {
-    inset: 0.5rem; /* Giảm khoảng cách (từ 1rem) */
-    border-width: 4px; /* Viền mỏng hơn (từ 6px) */
-    border-radius: 10px; /* Bo góc ít hơn */
-  }
+/* === KHỐI @media (max-width: 600px) ĐÃ BỊ XÓA HOÀN TOÀN === */
 
-  /* === SỬA BẢNG ĐIỀU KHIỂN "TO" === */
-  #controls-container {
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    max-width: none; /* Giữ nguyên, nó sẽ co giãn 100% */
-  }
-  #toggle-controls, #toggle-fullscreen {
-    padding: 8px 10px; /* Giảm đệm nút */
-    font-size: 12px;  /* Chữ nhỏ lại */
-  }
-  #toggle-fullscreen { top: 10px; right: 10px; }
-  #controls {
-    padding: 10px; /* Giảm đệm bên trong hộp */
-  }
-  .control-group {
-    margin: 8px 0; /* Giảm khoảng cách dọc */
-  }
-  .control-group label { width: 80px; font-size: 12px; }
-  .control-group span { width: 40px; font-size: 12px; }
-  .control-group select { font-size: 12px; padding: 4px; }
-  .control-group input[type="range"] {
-      /* Thêm để thanh trượt dễ bấm hơn 1 chút */
-      -webkit-appearance: none;
-      appearance: none;
-      height: 5px;
-      background: #555;
-      border-radius: 5px;
-      outline: none;
-  }
-  
-  /* === SỬA HỘP CHỮ BỊ TRÀN === */
-  .love-text-container {
-    /* Cho phép hộp chữ co giãn, không bị cứng 300px */
-    width: 42vw; /* Chiếm 42% chiều rộng */
-    min-width: 140px; /* Nhưng không nhỏ hơn 140px */
-    font-size: 1.2rem; /* Chữ nhỏ lại 1 chút */
-    padding: 10px;
-  }
-  #love-text-left {
-    left: 3vw; /* Gần mép hơn */
-  }
-  #love-text-right {
-    right: 3vw; /* Gần mép hơn */
-  }
-
-  /* === SỬA CHỮ H1 CHO ĐẸP === */
-  h1 {
-    font-size: max(2.5rem, 1.5vh); /* Chữ H1 nhỏ lại */
-    top: 6vh;
-  }
-
-  /* === SỬA NÚT START === */
-  #startButton {
-    bottom: 12vh; /* Đẩy lên cao hơn 1 chút */
-    padding: 12px 25px;
-    font-size: 1rem;
-  }
-}
 
 /* SỬA LỖI LOGIC MÀU TIM BAY (DÙNG SEPIA) */
 @keyframes rainbow-hue {
@@ -325,6 +268,7 @@ body.floating-color-rainbow img.floating-heart {
   }
 
 /* === CSS MỚI CHO DI ĐỘNG XOAY NGANG (LANDSCAPE) === */
+/* (Đây là code thay thế cho khối @media cũ) */
 
 /* Áp dụng chung cho di động (giống @media (max-width: 600px) cũ) */
 body.mobile-layout h1 {
@@ -353,6 +297,14 @@ body.mobile-layout .control-group { margin: 8px 0; }
 body.mobile-layout .control-group label { width: 80px; font-size: 12px; }
 body.mobile-layout .control-group span { width: 40px; font-size: 12px; }
 body.mobile-layout .control-group select { font-size: 12px; padding: 4px; }
+body.mobile-layout .control-group input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    background: #555;
+    border-radius: 5px;
+    outline: none;
+}
 body.mobile-layout .love-text-container {
   width: 42vw;
   min-width: 140px;
